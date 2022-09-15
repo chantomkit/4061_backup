@@ -19,14 +19,15 @@ void write_xyz(vector <vector <double>> coords, string atom="Si", string filenam
 vector <vector <double>> get_simplecubic(int nx, int ny, int nz, double lattice_cnst) {
     // coords is a 2D array for storing (x,y,z) of each atom at each row
     vector <vector <double>> coords;
+    // iterates through all x, y, z directions with given periods
     for (int i = 0; i < nx; i++)
     {
         for (int j = 0; j < ny; j++)
         {
             for (int k = 0; k < nz; k++)
             {
-                // looping through the lattice points while scaled by the lattice constant
-                coords.push_back({i*lattice_cnst, j*lattice_cnst, k*lattice_cnst});
+                // looping through the lattice points and scaled by the lattice constant
+                coords.push_back({i*lattice_cnst, j*lattice_cnst, k*lattice_cnst}); // this adds cubic point (corner)
             }
         }
     }
@@ -34,15 +35,18 @@ vector <vector <double>> get_simplecubic(int nx, int ny, int nz, double lattice_
 }
 
 vector <vector <double>> get_bcc(int nx, int ny, int nz, double lattice_cnst) {
+    // coords is a 2D array for storing (x,y,z) of each atom at each row
     vector <vector <double>> coords;
+    // iterates through all x, y, z directions with given periods
     for (int i = 0; i < nx; i++)
     {
         for (int j = 0; j < ny; j++)
         {
             for (int k = 0; k < nz; k++)
             {
-                coords.push_back({i*lattice_cnst, j*lattice_cnst, k*lattice_cnst});
-                coords.push_back({(i + 0.5)*lattice_cnst, (j + 0.5)*lattice_cnst, (k + 0.5)*lattice_cnst});
+                // looping through the lattice points and scaled by the lattice constant
+                coords.push_back({i*lattice_cnst, j*lattice_cnst, k*lattice_cnst}); // this adds cubic point (corner)
+                coords.push_back({(i + 0.5)*lattice_cnst, (j + 0.5)*lattice_cnst, (k + 0.5)*lattice_cnst}); // this adds the body centered point
             }
         }
     }
@@ -57,7 +61,9 @@ vector <vector <double>> get_fcc(int nx, int ny, int nz, double lattice_cnst) {
         {
             for (int k = 0; k < nz; k++)
             {
-                coords.push_back({i*lattice_cnst, j*lattice_cnst, k*lattice_cnst});
+                // looping through the lattice points and scaled by the lattice constant
+                coords.push_back({i*lattice_cnst, j*lattice_cnst, k*lattice_cnst}); // this adds cubic point (corner)
+                // These add the face centered points (3 points only), such that total atoms in a cell = 4
                 coords.push_back({(i + 0.5)*lattice_cnst, (j + 0.5)*lattice_cnst, k*lattice_cnst});
                 coords.push_back({(i + 0.5)*lattice_cnst, j*lattice_cnst, (k + 0.5)*lattice_cnst});
                 coords.push_back({i*lattice_cnst, (j + 0.5)*lattice_cnst, (k + 0.5)*lattice_cnst});
@@ -75,10 +81,13 @@ vector <vector <double>> get_diamond(int nx, int ny, int nz, double lattice_cnst
         {
             for (int k = 0; k < nz; k++)
             {
-                coords.push_back({i*lattice_cnst, j*lattice_cnst, k*lattice_cnst});
+                // looping through the lattice points and scaled by the lattice constant
+                coords.push_back({i*lattice_cnst, j*lattice_cnst, k*lattice_cnst}); // this adds cubic point (corner)
+                // These add face center points (3 points only)
                 coords.push_back({(i + 0.5)*lattice_cnst, (j + 0.5)*lattice_cnst, k*lattice_cnst});
                 coords.push_back({(i + 0.5)*lattice_cnst, j*lattice_cnst, (k + 0.5)*lattice_cnst});
                 coords.push_back({i*lattice_cnst, (j + 0.5)*lattice_cnst, (k + 0.5)*lattice_cnst});
+                // These add diamond structure points (4 points only), such that total 8 atoms in a cell
                 coords.push_back({(i + 0.25)*lattice_cnst, (j + 0.25)*lattice_cnst, (k + 0.25)*lattice_cnst});
                 coords.push_back({(i + 0.75)*lattice_cnst, (j + 0.75)*lattice_cnst, (k + 0.25)*lattice_cnst});
                 coords.push_back({(i + 0.25)*lattice_cnst, (j + 0.75)*lattice_cnst, (k + 0.75)*lattice_cnst});
@@ -90,13 +99,12 @@ vector <vector <double>> get_diamond(int nx, int ny, int nz, double lattice_cnst
 }
 
 int main() {
-    int nx, ny, nz;
-    double a;
+    int nx, ny, nz; // x,y,z dimensions
+    double a; // lattice constant
     cout << "Please enter Nx Ny Nz (for cell dimension Nx by Ny by Nz): ";
     cin >> nx >> ny >> nz;
     cout << "Please enter lattice constant (float): ";
     cin >> a;
-    int num_atoms = 0;
     cout << nx << " " << ny << " " << nz << " " << a << endl;
     vector <vector <double>> simple_cubic = get_simplecubic(nx, ny, nz, a);
     write_xyz(simple_cubic, "Si", "sc.xyz");

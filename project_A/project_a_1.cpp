@@ -7,16 +7,17 @@ using namespace std;
 void write_xyz(vector <vector <double>> coords, string atom="Si", string filename="cell.xyz", string comment="\n") {
     ofstream file;
     file.open(filename);
-    file << coords.size() << "\n";
-    file << comment;
+    file << coords.size() << "\n"; // get length of coords array as the total number of atoms of the crystal
+    file << comment; // comment line, left empty by default
     for (auto xyz: coords) {
-        file << atom << "\t" << xyz[0] << "\t" << xyz[1] << "\t" << xyz[2] << "\n";
+        file << atom << "\t" << xyz[0] << "\t" << xyz[1] << "\t" << xyz[2] << "\n"; // line by line writing coords of each atom
     }
     file.close();
     return;
 }
 
 vector <vector <double>> get_simplecubic(int nx, int ny, int nz, double lattice_cnst) {
+    // coords is a 2D array for storing (x,y,z) of each atom at each row
     vector <vector <double>> coords;
     for (int i = 0; i < nx; i++)
     {
@@ -24,6 +25,7 @@ vector <vector <double>> get_simplecubic(int nx, int ny, int nz, double lattice_
         {
             for (int k = 0; k < nz; k++)
             {
+                // looping through the lattice points while scaled by the lattice constant
                 coords.push_back({i*lattice_cnst, j*lattice_cnst, k*lattice_cnst});
             }
         }

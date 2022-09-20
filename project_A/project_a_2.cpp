@@ -27,6 +27,10 @@ double dot_prod(vector <double> u, vector <double> v) {
     return sum;
 }
 
+double volume(vector <vector <double> > lattice) {
+    return dot_prod(lattice[0], cross_prod(lattice[1], lattice[2]));
+}
+
 vector <vector <double> > reciprocal_vec(vector <vector <double> > a) {
     double volume = dot_prod(a[0], cross_prod(a[1], a[2]));
     
@@ -84,7 +88,7 @@ vector <double> pbc(vector <double> d) {
     return res;
 }
 
-vector <double> true_distance_vec(vector <double> d, vector <vector <double> > real_lattice, vector <vector <double> > recip_lattice, bool print=false) {
+pair<vector <double>, vector <double>>true_distance_vec(vector <double> d, vector <vector <double> > real_lattice, vector <vector <double> > recip_lattice, bool print=false) {
     vector <double> recip_d, true_d;
     if (print)
         cout << "Reciprocal distance vector" << endl;
@@ -109,7 +113,7 @@ vector <double> true_distance_vec(vector <double> d, vector <vector <double> > r
     }
     if (print)
         cout << endl;
-    return true_d;
+    return make_pair(recip_d, true_d);
 }
 
 vector <neighbour_record> neighbour_list(vector <vector <double> > lattice, vector <vector <double> > xyz, double dist_cutoff) {
@@ -123,7 +127,7 @@ vector <neighbour_record> neighbour_list(vector <vector <double> > lattice, vect
             if (i == j)
                 continue;
             dist_vec_temp = {xyz[j][0] - xyz[i][0], xyz[j][1] - xyz[i][1], xyz[j][2] - xyz[i][2]};
-            true_dist_vec_temp = true_distance_vec(dist_vec_temp, lattice, reciprocal_vec(lattice));
+            true_dist_vec_temp = true_distance_vec(dist_vec_temp, lattice, reciprocal_vec(lattice)).second;
             true_dist_temp = dot_prod(true_dist_vec_temp, true_dist_vec_temp);
             if (true_dist_temp < (dist_cutoff * dist_cutoff))
             {
@@ -154,8 +158,8 @@ int main() {
     print_2dvector(sc_vec);
     cout << "Simple Cubic Reciprocal Vector" << endl;
     print_2dvector(sc_recip);
-    cout << "Primitive Simple Cube Cell Volume: " << dot_prod(sc_vec[0], cross_prod(sc_vec[1], sc_vec[2])) << endl;
-    cout << "Reciprocal Simple Cube Cell Volume: " << dot_prod(sc_recip[0], cross_prod(sc_recip[1], sc_recip[2])) << endl << endl;
+    cout << "Primitive Simple Cube Cell Volume: " << volume(sc_vec) << endl;
+    cout << "Reciprocal Simple Cube Cell Volume: " << volume(sc_recip) << endl << endl;
 
     vector <vector <double> > bcc_vec = {{lat_cnst/2,lat_cnst/2,-lat_cnst/2}, {-lat_cnst/2,lat_cnst/2,lat_cnst/2}, {lat_cnst/2,-lat_cnst/2,lat_cnst/2}};
     vector <vector <double> > bcc_recip = reciprocal_vec(bcc_vec);
@@ -163,8 +167,8 @@ int main() {
     print_2dvector(bcc_vec);
     cout << "BCC Reciprocal Vector" << endl;
     print_2dvector(bcc_recip);
-    cout << "Primitive BCC Volume: " << dot_prod(bcc_vec[0], cross_prod(bcc_vec[1], bcc_vec[2])) << endl;
-    cout << "Reciprocal BCC Volume: " << dot_prod(bcc_recip[0], cross_prod(bcc_recip[1], bcc_recip[2])) << endl << endl;
+    cout << "Primitive BCC Volume: " << volume(bcc_vec) << endl;
+    cout << "Reciprocal BCC Volume: " << volume(bcc_recip) << endl << endl;
 
     vector <vector <double> > fcc_vec = {{lat_cnst/2,lat_cnst/2,0}, {0,lat_cnst/2,lat_cnst/2}, {lat_cnst/2,0,lat_cnst/2}};
     vector <vector <double> > fcc_recip = reciprocal_vec(fcc_vec);
@@ -172,8 +176,8 @@ int main() {
     print_2dvector(fcc_vec);
     cout << "FCC Reciprocal Vector" << endl;
     print_2dvector(fcc_recip);
-    cout << "Primitive FCC Volume: " << dot_prod(fcc_vec[0], cross_prod(fcc_vec[1], fcc_vec[2])) << endl;
-    cout << "Reciprocal FCC Volume: " << dot_prod(fcc_recip[0], cross_prod(fcc_recip[1], fcc_recip[2])) << endl << endl;
+    cout << "Primitive FCC Volume: " << volume(fcc_vec) << endl;
+    cout << "Reciprocal FCC Volume: " << volume(fcc_recip) << endl << endl;
 
     vector <double> dist = {1.62, -8.24, 5.36};
     vector <vector <double> > test_ucell_vec = {{2, 0, 0}, {0, 3, 0}, {0, 0, 4}};

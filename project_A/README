@@ -9,5 +9,3 @@ I have written several modular functions, such that the modules can be reused fo
 
 1. Functions for generating coords of atoms (in 2D array) in simple cubic, bcc, fcc or diamond structure
 2. Function for writing .xyz files given a 2D array storing each atom's coords in each row
-
-hi some changes

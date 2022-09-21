@@ -143,7 +143,7 @@ void write_neighbour_list(vector <neighbour_record> nlist, string filename="neig
     file.open(filename);
     file << "label1,label2,distance\n";
     for (auto record: nlist) {
-        file << record.label1 << "," << record.label2 << "," << record.distance << "\n"; // line by line writing coords of each atom
+        file << record.label1 << "," << record.label2 << "," << record.distance << "\n";
     }
     file.close();
     return;

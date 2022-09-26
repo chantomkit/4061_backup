@@ -1,0 +1,9 @@
+This program does not prompt for user input. It run all test cases upon running and output in the stdout. \
+
+Users may try editing the main() function to implement and use different test cases.\
+
+1. Test for the reciprocal function, given real lattice vectors of SC, BCC, FCC and diamond as four test cases input.\
+
+2. Test for the true distance function, given a real space distance vector and real unit cell vectors as input.\
+
+3. Test for the neighbour list function, given a list of atomic position of SC crystal (function from project A part 1) and real unit cell vectors as input. Output of neighbour list is stored in a csv file for checking.

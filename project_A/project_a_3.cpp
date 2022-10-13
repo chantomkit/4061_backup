@@ -15,28 +15,38 @@ using namespace std;
 //       | epsilon (eV) | sigma (nm) | a (Angstrom) | structure | cohesive energy (eV) |
 // Ar-Ar | 0.34         | 0.0104     | 5.311        | FCC       | 0.08                 |
 const double pi = 3.141592654;
-const double e_0 = 55.26349406 / 1e4; // e^2 eV^-1 Angstrom^-1
+const double e_0 = 55.26349406 / 1e4; // e^2 eV^-1 Angstrom^-1, vacuum permittivity
 const double eV = 1.602176634e-19;
 
-const double a_ArAr = 5.311; // Angstrom
-const double epsilon_ArAr = 0.0104; // eV
-const double sigma_ArAr = 0.34 * 10; // Angstrom
+const double a_ArAr = 5.311; // Angstrom, lattice constant
+const double epsilon_ArAr = 0.0104; // eV, potential params 
+const double sigma_ArAr = 0.34 * 10; // Angstrom, potential params 
 
-const double En_Ar = -0.08; // eV
+const double En_Ar = -0.08; // eV, reference cohesive energy
 
-// MgO Buckingham params: https://www.researchgate.net/publication/248076144_Effect_of_inversion_on_thermoelastic_and_thermal_transport_properties_of_MgAl_2_O_4_spinel_by_atomistic_simulation
+// MgO Buckingham params: https://www.researchgate.net/figure/Parameters-of-the-pair-interaction-potentials-between-the-ions-in-magnesium-oxide-within_tbl1_226793406
 // MgO structural properties: https://materialsproject.org/materials/mp-1265/
 // MgO Cohesive energy: https://iopscience.iop.org/article/10.1088/1742-6596/377/1/012067/pdf 
-//      | a (Angstrom) | structure          | cohesive energy (eV) |
-// Mg-O | 4.26         | FCC (2 atom basis) | 10.98                |
-const double a_MgO = 4.26; // Angstrom
-const double A_MgO = 1279.69; // eV
-const double B_MgO = 1. / 0.2997; // Angstrom^-1
-const double C_MgO = 0; // eV Angstrom^6
-const double q_Mg = 2; // e
-const double q_O = -2; // e
+//      | a (Angstrom) | structure          | binding energy (eV) |
+// Mg-O | 4.26         | FCC (2 atom basis) | 20.1                |
+const double a_MgO = 4.26; // Angstrom, lattice constant
 
-const double En_MgO = -10.98; // eV
+const double A_MgMg = 0; // eV, potential params 
+const double B_MgMg = 1; // Angstrom^-1, potential params 
+const double C_MgMg = 0; // eV Angstrom^6, potential params 
+
+const double A_MgO = 821.6; // eV, potential params 
+const double B_MgO = 1. / 0.3242; // Angstrom^-1, potential params 
+const double C_MgO = 0; // eV Angstrom^6, potential params 
+
+const double A_OO = 22764; // eV, potential params 
+const double B_OO = 1. / 0.149; // Angstrom^-1, potential params 
+const double C_OO = 27.88; // eV Angstrom^6, potential params 
+
+const double q_Mg = 2; // e, Mg 2+ ion charge
+const double q_O = -2; // e, O 2- ion charge
+
+const double En_MgO = -20.1; // eV, reference binding energy
 
 double LJ(double r2, double epsilon, double sigma) {
     double sq_sigma = sigma * sigma;
@@ -50,42 +60,65 @@ double CoulombBuckingham(double r2, double q1, double q2, double A, double B, do
 }
 
 int main() {
-    int n_cells = 3;
-    vector <vector <double> > Ar_cell_xyz = get_fcc(n_cells, n_cells, n_cells, a_ArAr);
-    cout << n_cells << " by " << n_cells << " Cell" << endl << "N atoms: " << Ar_cell_xyz.size() << endl;
-    vector <vector <double> > Ar_cell_vec = {{n_cells * a_ArAr, 0, 0}, {0, n_cells * a_ArAr, 0}, {0, 0, n_cells * a_ArAr}};
-    vector <neighbour_record> nlist = neighbour_list(Ar_cell_vec, Ar_cell_xyz, 5.1 * a_ArAr);
+    // int n_cells = 3;
+    double Ar_tot_en;
+    vector <vector <double> > Ar_cell_xyz, Ar_cell_vec;
 
-    double tot_en = 0;
     cout << "LJ potential" << endl;
-    for (auto record: nlist) {
-        tot_en += LJ(record.squared_distance, epsilon_ArAr, sigma_ArAr);
-        // cout << record.label1 << " " << record.label2 << " " << record.squared_distance << " " << tot_en << endl;
+    for (int n_cells = 5; n_cells < 8; n_cells++) {
+        Ar_cell_xyz = get_fcc(n_cells, n_cells, n_cells, a_ArAr);
+        cout << n_cells << " by " << n_cells << " Cell, N atoms: " << Ar_cell_xyz.size() << endl;
+        Ar_cell_vec = {{n_cells * a_ArAr, 0, 0}, {0, n_cells * a_ArAr, 0}, {0, 0, n_cells * a_ArAr}};
+        vector <neighbour_record> nlist = neighbour_list(Ar_cell_vec, Ar_cell_xyz, 10 * a_ArAr);
+        Ar_tot_en = 0;
+        for (auto record: nlist) {
+            Ar_tot_en += LJ(record.squared_distance, epsilon_ArAr, sigma_ArAr);
+            // cout << record.label1 << " " << record.label2 << " " << record.squared_distance << " " << tot_en << endl;
+        }
+        cout << "Computed Total Cohesive Energy of Ar (eV): " << Ar_tot_en << endl << "Computed Cohesive Energy per Ar atom (eV): " << Ar_tot_en / Ar_cell_xyz.size() << endl;
+        cout << "Reference value of Cohesive Energy of Ar per atom (eV): " << En_Ar << endl;
     }
-    cout << "Computed Total Cohesive Energy of Ar (eV): " << tot_en << endl << "Computed Energy per Ar atom (eV): " << tot_en / Ar_cell_xyz.size() << endl;
-    cout << "Reference value of Cohesive Energy of Ar per atom (eV): " << En_Ar << endl << endl;
+        
+    cout << endl << "Coulomb-Buckingham Potential" << endl;
+    vector <vector <double> > MgO_cell_vec, MgO_cell_xyz, O_cell_xyz;
+    vector <double> MgO_charges, O_charges;
 
-    vector <vector <double> > MgO_cell_vec = {{n_cells * a_MgO, 0, 0}, {0, n_cells * a_MgO, 0}, {0, 0, n_cells * a_MgO}};
-    // The name is MgO cell and MgO charges but firstly initialize Mg atoms
-    vector <vector <double> > MgO_cell_xyz = get_fcc(n_cells, n_cells, n_cells, a_MgO);
-    vector <double> MgO_charges(MgO_cell_xyz.size(), q_Mg);
-    // Then initialize O atoms
-    vector <vector <double> > O_cell_xyz = get_fcc(n_cells, n_cells, n_cells, a_MgO, a_MgO/2);
-    vector <double> O_charges(O_cell_xyz.size(), q_O);
-    // Insert O atoms to the end of Mg atoms to make MgO cell
-    MgO_cell_xyz.insert(end(MgO_cell_xyz), begin(O_cell_xyz), end(O_cell_xyz));
-    MgO_charges.insert(end(MgO_charges), begin(O_charges), end(O_charges));
-    vector <neighbour_record> MgO_nlist = neighbour_list(MgO_cell_vec, MgO_cell_xyz, 5.1 * a_ArAr);
-    double MgO_tot_en = 0;
-    double q1, q2;
-    cout << n_cells << " by " << n_cells << " Cell" << endl << "N atoms: " << MgO_cell_xyz.size() << endl;
-    cout << "Coulomb-Buckingham Potential" << endl;
-    for (auto record: MgO_nlist) {
-        q1 = MgO_charges[record.label1];
-        q2 = MgO_charges[record.label2];
-        MgO_tot_en += CoulombBuckingham(record.squared_distance, q1, q2, A_MgO, B_MgO, C_MgO);
-        // cout << record.label1 << " " << record.label2 << " " << record.squared_distance << " " << tot_en << endl;
+    for (int n_cells = 5; n_cells < 8; n_cells++) {
+        MgO_cell_vec = {{n_cells * a_MgO, 0, 0}, {0, n_cells * a_MgO, 0}, {0, 0, n_cells * a_MgO}};
+        // The name is MgO cell and MgO charges but firstly initialize Mg atoms, same for the charge
+        MgO_cell_xyz = get_fcc(n_cells, n_cells, n_cells, a_MgO);
+        int Mg_length = MgO_cell_xyz.size(); // Mg length is useful in determining atom type and charge by indexing
+        // MgO_charges = vector<double> (Mg_length, q_Mg);
+        // Then initialize O atoms
+        O_cell_xyz = get_fcc(n_cells, n_cells, n_cells, a_MgO, a_MgO/2);
+        // O_charges = vector<double> (O_cell_xyz.size(), q_O);
+        // Insert O atoms to the end of Mg atoms to make MgO cell, same for the charge
+        MgO_cell_xyz.insert(end(MgO_cell_xyz), begin(O_cell_xyz), end(O_cell_xyz));
+        MgO_charges.insert(end(MgO_charges), begin(O_charges), end(O_charges));
+        vector <neighbour_record> MgO_nlist = neighbour_list(MgO_cell_vec, MgO_cell_xyz, 10 * a_MgO);
+        double MgO_tot_en = 0;
+        double q1, q2;
+        
+        cout << n_cells << " by " << n_cells << " Cell, N atoms: " << MgO_cell_xyz.size() << endl;
+        for (auto record: MgO_nlist) {
+            // q1 = MgO_charges[record.label1];
+            // q2 = MgO_charges[record.label2];
+
+            // Both ions are Mg
+            if ((record.label1 < Mg_length) && (record.label2 < Mg_length)) {
+                MgO_tot_en += CoulombBuckingham(record.squared_distance, q_Mg, q_Mg, A_MgMg, B_MgMg, C_MgMg);
+            }
+            // Both ions are O
+            else if ((record.label1 > Mg_length) && (record.label2 > Mg_length)) {
+                MgO_tot_en += CoulombBuckingham(record.squared_distance, q_O, q_O, A_OO, B_OO, C_OO);
+            }
+            // One Mg One O
+            else {
+                MgO_tot_en += CoulombBuckingham(record.squared_distance, q_Mg, q_O, A_MgO, B_MgO, C_MgO);
+            }
+            // cout << record.label1 << " " << record.label2 << " " << record.squared_distance << " " << tot_en << endl;
+        }
+        cout << "Computed Total Binding Energy of MgO (eV): " << MgO_tot_en << endl << "Computed Binding Energy per MgO atom (eV): " << MgO_tot_en / MgO_cell_xyz.size() << endl;
+        cout << "Reference value of Binding Energy of MgO per atom (eV): " << En_MgO << endl;
     }
-    cout << "Computed Total Cohesive Energy of MgO (eV): " << MgO_tot_en << endl << "Computed Energy per MgO atom (eV): " << MgO_tot_en / MgO_cell_xyz.size() << endl;
-    cout << "Reference value of Cohesive Energy of MgO per atom (eV): " << En_MgO << endl;
 }

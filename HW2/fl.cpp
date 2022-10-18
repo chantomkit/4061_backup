@@ -64,8 +64,10 @@ void print_2dvector(vector <vector <double> > vec) {
 }
 
 int main() {
+    // test case
     vector <vector <double>> a {{1,2,3,4},{4,3,2,1},{1,4,2,3},{2,1,3,4}};
     int n = a.size();
+    // d is the inverted matrix, however, if the input matrix is singular, the function will still output a matrix with nans or inf
     vector <vector <double>> d = matInverse(a);
     cout << "Original Matrix" << endl;
     print_2dvector(a);

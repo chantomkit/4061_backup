@@ -12,8 +12,7 @@ using namespace std;
 
 // Argon LJ params: https://www.researchgate.net/figure/Lennard-Jones-LJ-potential-parameters-of-different-materials-considered-in-thepresent_tbl2_319412425
 // Argon structure and lattice constant: https://aip.scitation.org/doi/10.1063/1.1726009?cookieSet=1 
-// Argon cohesive energy: https://arxiv.org/pdf/2012.05413.pdf 
-// https://www.knowledgedoor.com/2/elements_handbook/cohesive_energy.html
+// Argon cohesive energy: https://www.knowledgedoor.com/2/elements_handbook/cohesive_energy.html
 //       | epsilon (eV) | sigma (nm) | a (Angstrom) | structure | cohesive energy (eV) |
 // Ar-Ar | 0.34         | 0.0104     | 5.311        | FCC       | 0.08                 |
 const double pi = 3.141592654;
@@ -28,7 +27,7 @@ const double En_Ar = -0.08; // eV, reference cohesive energy
 
 // MgO Buckingham params: https://www.researchgate.net/figure/Parameters-of-the-pair-interaction-potentials-between-the-ions-in-magnesium-oxide-within_tbl1_226793406
 // MgO structural properties: https://materialsproject.org/materials/mp-1265/
-// MgO Cohesive energy: https://iopscience.iop.org/article/10.1088/1742-6596/377/1/012067/pdf 
+// MgO binding energy: https://iopscience.iop.org/article/10.1088/1742-6596/377/1/012067/pdf 
 //      | a (Angstrom) | structure          | binding energy (eV) |
 // Mg-O | 4.26         | FCC (2 atom basis) | 20.1                |
 const double a_MgO = 4.26; // Angstrom, lattice constant

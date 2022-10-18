@@ -2,6 +2,18 @@ To compile: g++ -std=c++11 project_a_3.cpp -o project_a_3.exe
 
 All the params for LJ potential and Coulomb Buckingham potential values are set as constant, their references can be found at the comment of the cpp source file.
 
+- Argon LJ params: https://www.researchgate.net/figure/Lennard-Jones-LJ-potential-parameters-of-different-materials-considered-in-thepresent_tbl2_319412425
+- Argon structure and lattice constant: https://aip.scitation.org/doi/10.1063/1.1726009?cookieSet=1 
+- Argon cohesive energy: https://www.knowledgedoor.com/2/elements_handbook/cohesive_energy.html
+
+Computed cohesive energy per atom = 0.0886 eV, ref value = 0.08 eV
+
+- MgO Buckingham params: https://www.researchgate.net/figure/Parameters-of-the-pair-interaction-potentials-between-the-ions-in-magnesium-oxide-within_tbl1_226793406
+- MgO structural properties: https://materialsproject.org/materials/mp-1265/
+- MgO binding energy: https://iopscience.iop.org/article/10.1088/1742-6596/377/1/012067/pdf 
+
+Computed binding energy per atom = 24.8 eV, ref value = 20.1 eV
+
 The LJ and Coulomb Buckingham potential functions definition should have clear enough variable names for understanding
 
 This program does not prompt for user input. It run all test cases upon running and output in the stdout.

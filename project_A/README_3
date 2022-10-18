@@ -1,0 +1,15 @@
+To compile: g++ -std=c++11 project_a_3.cpp -o project_a_3.exe
+
+All the params for LJ potential and Coulomb Buckingham potential values are set as constant, their references can be found at the comment of the cpp source file.
+
+The LJ and Coulomb Buckingham potential functions definition should have clear enough variable names for understanding
+
+This program does not prompt for user input. It run all test cases upon running and output in the stdout.
+
+Users may try editing the main() function to implement and use different test cases.
+
+In the main function,
+
+1. The loop for n_cells determine how many unti cells constitute the structure, e.g. n_cells = 8 means a 8x8 cell
+2. The 4th argument of neighbour list function is the cutoff distance, I have set it to very large ~ 10 * lattice constant
+3. After the loop, the function simply outputs the computed total energy of the structure, and the computed energy per atom with its reference value

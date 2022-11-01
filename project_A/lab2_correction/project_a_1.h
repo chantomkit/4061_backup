@@ -62,11 +62,11 @@ vector <vector <double> > get_fcc(int nx, int ny, int nz, double lattice_cnst, d
             for (int k = 0; k < nz; k++)
             {
                 // looping through the lattice points and scaled by the lattice constant
-                coords.push_back({(i + shiftx)*lattice_cnst, (j + shifty)*lattice_cnst, (k + shiftz)*lattice_cnst}); // this adds cubic point (corner)
+                coords.push_back({i*lattice_cnst+shiftx, j*lattice_cnst+shifty, k*lattice_cnst+shiftz}); // this adds cubic point (corner)
                 // These add the face centered points (3 points only), such that total atoms in a cell = 4
-                coords.push_back({(i + 0.5 + shiftx)*lattice_cnst, (j + 0.5 + shifty)*lattice_cnst, (k + shiftz)*lattice_cnst});
-                coords.push_back({(i + 0.5 + shiftx)*lattice_cnst, (j + shifty)*lattice_cnst, (k + 0.5 + shiftz)*lattice_cnst});
-                coords.push_back({(i + shiftx)*lattice_cnst, (j + 0.5 + shifty)*lattice_cnst, (k + 0.5 + shiftz)*lattice_cnst});
+                coords.push_back({(i + 0.5)*lattice_cnst+shiftx, (j + 0.5)*lattice_cnst+shifty, k*lattice_cnst+shiftz});
+                coords.push_back({(i + 0.5)*lattice_cnst+shiftx, j*lattice_cnst+shifty, (k + 0.5)*lattice_cnst+shiftz});
+                coords.push_back({i*lattice_cnst+shiftx, (j + 0.5)*lattice_cnst+shifty, (k + 0.5)*lattice_cnst+shiftz});
             }
         }
     }

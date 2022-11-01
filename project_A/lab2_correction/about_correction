@@ -1,0 +1,14 @@
+For the neighbour list pushing part, I made the correction at project_a_2.h line 183, please check the file.
+
+However, I would like to say that I was intended to skip this line because I wanted to avoid double counting of atom pairs when calculating potential in the next part. (Because there is only one energy for each atom pair right? So storing two records for each atom pair may waste space.)
+
+For the neighbour distance part, I don't think I was wrong. At least the nearest distance is correct, please note that what I stored in the neighbour_list.csv is in **squared distance**.
+
+My calculated **squared distance** of nearest neighbour are (assumed a = 1 angstrom):
+
+1. Simple cubic: 1 (correspond to **normal** distance: sqrt(1))
+2. FCC: 0.5 (correspond to **normal** distance: sqrt(1/2))
+3. BCC: 0.75 (correspond to **normal** distance: sqrt(3/4))
+4. Diamond: 0.1875 (correspond to **normal** distance: sqrt(3/16))
+
+Please check my attached neighbour list csv files here for references, you may generate the same files using the codes.

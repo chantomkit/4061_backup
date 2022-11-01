@@ -2,6 +2,7 @@
 #include <fstream>
 #include <math.h>
 #include <vector>
+#include <limits>
 // Project A part 1 functions are reused
 // simple cubic, bcc, fcc, diamond structure generation
 #include "project_a_1.h"
@@ -31,6 +32,7 @@ const double En_Ar = -0.08; // eV, reference cohesive energy
 //      | a (Angstrom) | structure          | binding energy (eV) |
 // Mg-O | 4.26         | FCC (2 atom basis) | 20.1                |
 const double a_MgO = 4.26; // Angstrom, lattice constant
+// const double a_MgO = 1; // Angstrom, lattice constant
 
 const double A_MgMg = 0; // eV, potential params 
 const double B_MgMg = 1; // Angstrom^-1, potential params 
@@ -68,11 +70,12 @@ int main() {
 
     cout << "LJ potential" << endl;
     // Looping for different dimension of simulation cells (NxN)
-    for (int n_cells = 5; n_cells < 8; n_cells++) {
+    for (int dim = 1; dim < 5; dim++) {
+        int n_cells = dim*2;
         Ar_cell_xyz = get_fcc(n_cells, n_cells, n_cells, a_ArAr); // Part 1 function
-        cout << n_cells << " by " << n_cells << " Cell, N atoms: " << Ar_cell_xyz.size() << endl;
+        cout << n_cells << " by " << n_cells << " by " << n_cells << " Cell, N atoms: " << Ar_cell_xyz.size() << endl;
         Ar_cell_vec = {{n_cells * a_ArAr, 0, 0}, {0, n_cells * a_ArAr, 0}, {0, 0, n_cells * a_ArAr}}; // Setting the lattice vector to appropiate scale
-        vector <neighbour_record> nlist = neighbour_list(Ar_cell_vec, Ar_cell_xyz, 10 * a_ArAr); // Part 2 function, with cutoff = 10 * lattice constant
+        vector <neighbour_record> nlist = neighbour_list(Ar_cell_vec, Ar_cell_xyz, numeric_limits<int>::max()); // Part 2 function, with cutoff = 10 * lattice constant
         Ar_tot_en = 0; // Setting the total Ar structure energy as 0
         for (auto record: nlist) {
             Ar_tot_en += LJ(record.squared_distance, epsilon_ArAr, sigma_ArAr); // For each pair of neighbour, compute their LJ potential and add to total energy
@@ -85,7 +88,8 @@ int main() {
     // Initialize a empty variable to store all MgO atoms real space coordinates, and the real lattice vector
     vector <vector <double> > MgO_cell_vec, MgO_cell_xyz, O_cell_xyz;
     // Looping for different dimension of simulation cells (NxN)
-    for (int n_cells = 5; n_cells < 8; n_cells++) {
+    for (int dim = 1; dim < 5; dim++) {
+        int n_cells = dim*2;
         // Setting the lattice vector to appropiate scale
         MgO_cell_vec = {{n_cells * a_MgO, 0, 0}, {0, n_cells * a_MgO, 0}, {0, 0, n_cells * a_MgO}};
         // The name is MgO cell firstly initialize Mg atoms, part 1 function
@@ -93,15 +97,15 @@ int main() {
         // Mg length is useful in determining atom type and charge type by indexing
         int Mg_length = MgO_cell_xyz.size(); 
         // Then initialize O atoms, part 1 function 
-        O_cell_xyz = get_fcc(n_cells, n_cells, n_cells, a_MgO, a_MgO/2);
+        O_cell_xyz = get_fcc(n_cells, n_cells, n_cells, a_MgO, 0.5);
         // Insert O atoms to the end of Mg atoms to make MgO cell
         MgO_cell_xyz.insert(end(MgO_cell_xyz), begin(O_cell_xyz), end(O_cell_xyz));
         // Part 2 function, with cutoff = 10 * lattice constant
-        vector <neighbour_record> MgO_nlist = neighbour_list(MgO_cell_vec, MgO_cell_xyz, 10 * a_MgO);
+        vector <neighbour_record> MgO_nlist = neighbour_list(MgO_cell_vec, MgO_cell_xyz, numeric_limits<int>::max());
         // Setting the total MgO structure energy as 0
         double MgO_tot_en = 0;
         
-        cout << n_cells << " by " << n_cells << " Cell, N atoms: " << MgO_cell_xyz.size() << endl;
+        cout << n_cells << " by " << n_cells <<" by " << n_cells << " Cell, N atoms: " << MgO_cell_xyz.size() << endl;
         for (auto record: MgO_nlist) {
             // For each pair of neighbour, consider different interaction cases
             // Use different sets of params in CoulombBuckingham potential and add to the total MgO energy
@@ -112,7 +116,7 @@ int main() {
                 MgO_tot_en += CoulombBuckingham(record.squared_distance, q_Mg, q_Mg, A_MgMg, B_MgMg, C_MgMg);
             }
             // Both ions are O
-            else if ((record.label1 > Mg_length) && (record.label2 > Mg_length)) {
+            else if ((record.label1 >= Mg_length) && (record.label2 >= Mg_length)) {
                 MgO_tot_en += CoulombBuckingham(record.squared_distance, q_O, q_O, A_OO, B_OO, C_OO);
             }
             // One Mg One O

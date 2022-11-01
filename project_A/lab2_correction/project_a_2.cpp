@@ -48,10 +48,10 @@ int main() {
     true_distance_vec(dist, test_ucell_vec, reciprocal_vec(test_ucell_vec), true);
     cout << endl;
 
-    vector <vector <double> > unit_cell_xyz = get_simplecubic(3, 3, 3, 1);
+    // vector <vector <double> > unit_cell_xyz = get_simplecubic(3, 3, 3, 1);
     // vector <vector <double> > unit_cell_xyz = get_diamond(3, 3, 3, 1);
     // vector <vector <double> > unit_cell_xyz = get_fcc(3, 3, 3, 1);
-    // vector <vector <double> > unit_cell_xyz = get_bcc(3, 3, 3, 1);
+    vector <vector <double> > unit_cell_xyz = get_bcc(3, 3, 3, 1);
     cout << "NEIGHBOUR LIST FUNCTION TESTING PART" << endl;
     cout << "Atomic position of unit cell, simple cubic" << endl;
     print_2dvector(unit_cell_xyz);

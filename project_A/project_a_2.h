@@ -9,6 +9,9 @@ struct neighbour_record {
     int label1;
     int label2;
     double squared_distance;
+    double dx;
+    double dy;
+    double dz;
 };
 
 // Cross product function (3-D)
@@ -94,7 +97,6 @@ void print_2dvector(vector <vector <double> > vec) {
 // }
 double pbc(double d) {
     double temp;
-    vector <double> res(3);
     temp = fmod(d, 1.0);
     if (temp > 0.5)
         temp -= 1;
@@ -174,7 +176,7 @@ vector <neighbour_record> neighbour_list(vector <vector <double> > lattice, vect
             true_dist_temp = dot_prod(true_dist_vec_temp, true_dist_vec_temp);
             // Step 4: if distance squared is smaller than distance cutoff squared, add the pair to neighbour list
             if (true_dist_temp < (dist_cutoff * dist_cutoff))
-                nlist.push_back({i, j, true_dist_temp});
+                nlist.push_back({i, j, true_dist_temp, true_dist_vec_temp[0], true_dist_vec_temp[1], true_dist_vec_temp[2]});
         }
     }
     return nlist;
@@ -184,9 +186,9 @@ vector <neighbour_record> neighbour_list(vector <vector <double> > lattice, vect
 void write_neighbour_list(vector <neighbour_record> nlist, string filename="neighbour_list.csv") {
     ofstream file;
     file.open(filename);
-    file << "label1,label2,squared_distance\n";
+    file << "label1,label2,squared_distance,dx,dy,dz\n";
     for (auto record: nlist) {
-        file << record.label1 << "," << record.label2 << "," << record.squared_distance << "\n";
+        file << record.label1 << "," << record.label2 << "," << record.squared_distance << "," << record.dx << "," << record.dy << "," << record.dz <<"\n";
     }
     file.close();
     return;

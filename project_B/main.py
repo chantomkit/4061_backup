@@ -48,10 +48,19 @@ class MC_portfolio():
             stocks = init_stock_choice(self.norm_return.columns, k=k, k_low=k_low, k_up=k_up)
             weights = init_weight_choice(len(stocks), w=w)
 
-            portfolio = build_portfolio(self.norm_return, self.capital, stocks, weights)
-            mreturn, stdreturn = portfolio.DailyPercentageReturn.mean(), portfolio.DailyPercentageReturn.std()
-            sp = sharpe(mreturn, stdreturn, kval=np.sqrt(self.trade_periods[freq]), risk_free_ret=0.04/self.trade_periods[freq])
+            norm_return_tmp = self.norm_return[stocks]
+
+            log_return = np.log(norm_return_tmp/norm_return_tmp.shift(1))
+            exp_return = np.sum(log_return.mean() * weights) * self.trade_periods[freq]
+            exp_volatility = np.sqrt(np.dot(weights.T, np.dot(log_return.cov() * self.trade_periods[freq], weights)))
+
+            portfolio = build_portfolio(norm_return_tmp, self.capital, stocks, weights)
             pnl = portfolio.PercentagePos.iloc[-1]
+            sp = sharpe(exp_return, exp_volatility)
+            # portfolio = build_portfolio(self.norm_return, self.capital, stocks, weights)
+            # mreturn, stdreturn = portfolio.DailyPercentageReturn.mean(), portfolio.DailyPercentageReturn.std()
+            # sp = sharpe(mreturn, stdreturn, kval=np.sqrt(self.trade_periods[freq]), risk_free_ret=0.04/self.trade_periods[freq])
+            # pnl = portfolio.PercentagePos.iloc[-1]
             
             if history:
                 self.history_sharpe.append(sp)

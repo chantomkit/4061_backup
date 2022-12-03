@@ -145,8 +145,10 @@ void SD_LJ(vector <vector <double> > &xyz, vector <vector <double> > lat_vec, do
         dQ_tmp[0] = step2_tmp[0] - step1_tmp[0];
         dQ_tmp[1] = step2_tmp[1] - step1_tmp[1];
         dQ_tmp[2] = step2_tmp[2] - step1_tmp[2];
+
+        dQ_tmp = true_distance_vec(dQ_tmp, lat_vec, reciprocal_vec(lat_vec)).second;
         step_r2_tmp = dot_prod(dQ_tmp, dQ_tmp);
-        
+        // cout << step_r2_tmp << endl;
         slope_pref = LJ_slope_prefactor(step_r2_tmp, epsilon_ArAr, sigma_ArAr);
 
         Fprime_step[record.label1][0] -= slope_pref * dQ_tmp[0];
@@ -199,6 +201,8 @@ void CG_ColumbBuckingham(vector <vector <double> > &xyz, vector <vector <double>
         dQ_tmp[0] = step2_tmp[0] - step1_tmp[0];
         dQ_tmp[1] = step2_tmp[1] - step1_tmp[1];
         dQ_tmp[2] = step2_tmp[2] - step1_tmp[2];
+        dQ_tmp = true_distance_vec(dQ_tmp, lat_vec, reciprocal_vec(lat_vec)).second;
+
         step_r2_tmp = dot_prod(dQ_tmp, dQ_tmp);
         
         if ((record.label1 < length) && (record.label2 < length)) {
@@ -257,6 +261,7 @@ int main() {
     // print_2dvector(Ar_cell_xyz);
     // double nn_cutoff = 3.1*a_ArAr;
     double nn_cutoff = numeric_limits<int>::max();
+
     en_tmp = total_LJ(neighbour_list(Ar_cell_vec, Ar_cell_xyz, nn_cutoff), epsilon_ArAr, sigma_ArAr);
     cout << "Initial energy " << en_tmp << endl;
     for (int i = 0; i < n_iter; i++)
@@ -264,6 +269,7 @@ int main() {
         SD_LJ(Ar_cell_xyz, Ar_cell_vec, 0.001, 1e-5, nn_cutoff);
         if ((i+1) % 500 == 0) {
             en = total_LJ(neighbour_list(Ar_cell_vec, Ar_cell_xyz, nn_cutoff), epsilon_ArAr, sigma_ArAr);
+            print_2dvector(Ar_cell_xyz);
             diff = en - en_tmp;
             cout << "Step " << i+1 << "; energy: " << en << "; abs difference: " << fabs(diff) << "; convergence tol: " << en_tol << endl;
             if (fabs(diff) < en_tol) {
@@ -273,9 +279,11 @@ int main() {
             en_tmp = en;
         }
     }
+
     // cout << "Relaxed Structure Coordinates" << endl;
     // print_2dvector(Ar_cell_xyz);
 
+    n_cells = 1;
     vector <vector <double> > MgO_cell_vec, MgO_cell_xyz, O_cell_xyz;
     MgO_cell_vec = {{n_cells * a_MgO, 0, 0}, {0, n_cells * a_MgO, 0}, {0, 0, n_cells * a_MgO}};
     MgO_cell_xyz = get_fcc(n_cells, n_cells, n_cells, a_MgO);
@@ -299,7 +307,8 @@ int main() {
     for (int i = 0; i < n_iter; i++)
     {
         CG_ColumbBuckingham(MgO_cell_xyz, MgO_cell_vec, h, i, 0.1, 1e-5, nn_cutoff);
-        if ((i+1) % 500 == 0) {
+        if ((i+1) % 1 == 0) {
+            // print_2dvector(MgO_cell_xyz);
             en = total_CoulombBuckingham(neighbour_list(MgO_cell_vec, MgO_cell_xyz, nn_cutoff), Mg_length);
             diff = en - en_tmp;
             cout << "Step " << i+1 << "; energy: " << en << "; abs difference: " << fabs(diff) << "; convergence tol: " << en_tol << endl;

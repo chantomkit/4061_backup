@@ -2,6 +2,8 @@
 #include <fstream>
 #include <math.h>
 #include <vector>
+#include <string>  
+
 
 using namespace std;
 
@@ -63,11 +65,13 @@ int main() {
         relax(u, d, s, p_trial, del, nmax);
         x = 0;
         double mh = m * h;
+        ofstream file;
+        file.open("p_"+ to_string(p_trial)+".csv");
         for (int i = 0; i < n; i+=m) {
-            cout << x << " " << 100*u[i] << endl;
+            file << x << "," << 100*u[i] << endl;
             x += mh;
         }
-        cout << endl;
+        file.close();
     }
 
     

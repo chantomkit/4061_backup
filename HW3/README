@@ -1,0 +1,13 @@
+Question 1:
+
+In original world, longest distance is by aiming at 42.5 degree because air resistance is higher
+
+In parallel world, longest distance is by aiming at 45.5 degree because air resistance is lower
+
+Question 2:
+
+I tried to test p values from 0.5 to 1.5 with interval 0.1, they all converged at iteration 1 because they are already below del=1e-3 so the loop is terminated.
+
+I don't think I have any code problems because I fully copy the one in lecture notes.
+
+Still, I plot the curvature of all p values to see whats the difference, see q2.png

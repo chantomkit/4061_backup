@@ -18,13 +18,15 @@ void jump_originalworld(double);
 double deg2rad(double);
 
 int main() {
+    printf("Parallel world air resistance scales with v^(7/5)\n");
     jump_parallelworld(deg2rad(42.5));
-    // jump_parallelworld(deg2rad(45.5));
-    // jump_parallelworld(deg2rad(47.5));
+    jump_parallelworld(deg2rad(45.5));
+    jump_parallelworld(deg2rad(47.5));
 
-    // jump_originalworld(deg2rad(42.5));
-    // jump_originalworld(deg2rad(45.5));
-    // jump_originalworld(deg2rad(47.5));
+    printf("Original world air resistance scales with v^2\n");
+    jump_originalworld(deg2rad(42.5));
+    jump_originalworld(deg2rad(45.5));
+    jump_originalworld(deg2rad(47.5));
 }
 
 double deg2rad(double angle) {
@@ -73,7 +75,10 @@ void jump_parallelworld(double angle) {
     }
 
     for (int i = 0; i <= n; i++) {
-        printf("%f %f\n", x[i], y[i]);
+        if (y[i] < 0) {
+            printf("Degree: %f, Hit ground at: %f %f\n", 180*angle/M_PI, x[i], y[i]);
+            break;
+        }
     }
     return;
 }
@@ -120,7 +125,10 @@ void jump_originalworld(double angle) {
     }
 
     for (int i = 0; i <= n; i++) {
-        printf("%f %f\n", x[i], y[i]);
+        if (y[i] < 0) {
+            printf("Degree: %f, Hit ground at: %f %f\n", 180*angle/M_PI, x[i], y[i]);
+            break;
+        }
     }
     return;
 }

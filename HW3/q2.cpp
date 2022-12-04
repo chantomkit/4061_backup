@@ -23,7 +23,9 @@ void relax(vector <double> &u, vector <double> &d, vector <double> &s, double p,
         }
         du = sqrt(du / n);
         k++;
+        cout << "iteration: " << k << " du: " << du << endl;
     }
+    cout << "Converged at iteration: " << k << endl;
     if (k == nmax) {
         cout << "Convergence not found after " << nmax << " iterations" << endl;
     }
@@ -38,28 +40,35 @@ int main() {
     double u0 = 0.032, p = 1.5, del = 1e-3;
     int nmax = 100;
 
-    for (int i = 0; i <= n; i++) {
-        s[i] = rho * g;
-        x = h * i - l2;
-        if (fabs(x) < x0) {
-            s[i] += f0 * (exp(-x * x / x2) - e0);
-        }
-        s[i] *= h2 / y;
-    }
-
-    for (int i = 1; i < n; i++) {
-        x = M_PI * h * i / l;
-        u[i] = u0 * sin(x);
-        d[i] = 1;
-    }
-    d[0] = d[n] = 1;
     
-    relax(u, d, s , p, del, nmax);
+    for (int trial = 0; trial < 11; trial++) {
+        for (int i = 0; i <= n; i++) {
+            s[i] = rho * g;
+            x = h * i - l2;
+            if (fabs(x) < x0) {
+                s[i] += f0 * (exp(-x * x / x2) - e0);
+            }
+            s[i] *= h2 / y;
+        }
 
-    x = 0;
-    double mh = m * h;
-    for (int i = 0; i < n; i+=m) {
-        cout << x << " " << 100*u[i] << endl;
-        x += mh;
+        for (int i = 1; i < n; i++) {
+            x = M_PI * h * i / l;
+            u[i] = u0 * sin(x);
+            d[i] = 1;
+        }
+        d[0] = d[n] = 1;
+
+        double p_trial = 0.5+trial*0.1;
+        cout << "Testing for p = " << p_trial << endl;
+        relax(u, d, s, p_trial, del, nmax);
+        x = 0;
+        double mh = m * h;
+        for (int i = 0; i < n; i+=m) {
+            cout << x << " " << 100*u[i] << endl;
+            x += mh;
+        }
+        cout << endl;
     }
+
+    
 }

@@ -307,7 +307,7 @@ int main() {
     // cout << "Relaxed Structure Coordinates" << endl;
     // print_2dvector(Ar_cell_xyz);
 
-    n_cells = 1;
+    n_cells = 3;
     vector <vector <double> > MgO_cell_vec, MgO_cell_xyz, O_cell_xyz;
     MgO_cell_vec = {{n_cells * a_MgO, 0, 0}, {0, n_cells * a_MgO, 0}, {0, 0, n_cells * a_MgO}};
     MgO_cell_xyz = get_fcc(n_cells, n_cells, n_cells, a_MgO);
@@ -325,7 +325,7 @@ int main() {
         h[i][1] = -Fprime_0[i][1];
         h[i][2] = -Fprime_0[i][2];
     }
-
+    cout <<"nlist" << MgO_nlist.size() <<endl;
     en_tmp = total_CoulombBuckingham(neighbour_list(MgO_cell_vec, MgO_cell_xyz, nn_cutoff), Mg_length);
     cout << "CoulombBuckingham: Initial energy " << en_tmp << endl;
     for (int i = 0; i < n_iter; i++)

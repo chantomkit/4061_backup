@@ -14,12 +14,12 @@
 using namespace std;
 
 // add random perturb (-0.1 ~ 0.1)
-vector <vector <double> > add_perturbation(vector <vector <double> > xyz, double perturb_strength=0.01) {
+vector <vector <double> > add_perturbation(vector <vector <double> > xyz, double perturb_strength=0.05) {
     srand (time(NULL));
     // srand (1);
     for (int i = 0; i < xyz.size(); i++) {
         for (int j = 0; j < 3; j++) {
-            xyz[i][j] += ((rand() % 100000) / 50000. - 1) * 0.01;
+            xyz[i][j] += ((rand() % 100000) / 50000. - 1) * perturb_strength;
         }
     }
     return xyz;
@@ -94,13 +94,14 @@ vector <vector <double> > Fprime_CoulombBuckingham(vector <neighbour_record> nli
     return Fprime;
 }
 
-double secant_method(vector <double> Fprime, vector <double> h, vector <double> Fprime_step, double rate=0.1, double tol=1e-5) {
+double secant_method(vector <double> Fprime, vector <double> h, vector <double> Fprime_step, double rate=0.1, double tol=1e-10) {
     double alpha;
     vector <double> diff(3);
     diff[0] = Fprime_step[0] - Fprime[0];
     diff[1] = Fprime_step[1] - Fprime[1];
     diff[2] = Fprime_step[2] - Fprime[2];
-    if (dot_prod(diff, diff) < tol) {
+    // cout << dot_prod(diff, diff) << " " << tol*tol << endl;
+    if (dot_prod(diff, diff) < (tol*tol)) {
         return 0.;
     } 
     alpha = -rate * dot_prod(Fprime, h) / dot_prod(diff, h);
@@ -113,7 +114,6 @@ void SD_LJ(vector <vector <double> > &xyz, vector <vector <double> > lat_vec, do
     // double Fprime_xtmp, Fprime_ytmp, Fprime_ztmp;
     vector <double> Fprime_tmp(3, 0);
     double slope_pref;
-    // print_2dvector(xyz);
     // Compute full gradient vectors for all atoms
     for (auto record: nlist) {
         // Computing the gradient vector elements for each pair
@@ -129,11 +129,23 @@ void SD_LJ(vector <vector <double> > &xyz, vector <vector <double> > lat_vec, do
         Fprime[record.label2][2] += slope_pref * record.dz;
     }
 
+    // print_2dvector(Fprime);
     vector <vector <double> > Fprime_step(xyz.size(), vector<double>(3, 0));
     vector <double> step1_tmp(3), step2_tmp(3), dQ_tmp(3);
     double step_r2_tmp;
     // Compute gradient vectors of all atoms after taking small step
     for (auto record: nlist) {
+        if (dot_prod(Fprime[record.label1], Fprime[record.label1]) > 10) {
+            cout << "Fprime[record.label1]" << endl;
+            print_1dvector(Fprime[record.label1]);
+            return;
+        }
+
+        if (dot_prod(Fprime[record.label2], Fprime[record.label2]) > 10) {
+            cout << "Fprime[record.label2]" << endl;
+            print_1dvector(Fprime[record.label2]);
+            return;
+        }
         step1_tmp[0] = xyz[record.label1][0] + rate * -Fprime[record.label1][0];
         step1_tmp[1] = xyz[record.label1][1] + rate * -Fprime[record.label1][1];
         step1_tmp[2] = xyz[record.label1][2] + rate * -Fprime[record.label1][2];
@@ -148,9 +160,22 @@ void SD_LJ(vector <vector <double> > &xyz, vector <vector <double> > lat_vec, do
 
         dQ_tmp = true_distance_vec(dQ_tmp, lat_vec, reciprocal_vec(lat_vec)).second;
         step_r2_tmp = dot_prod(dQ_tmp, dQ_tmp);
+        if (step_r2_tmp < 0.1)
+        {
+            cout << "step_r2_tmp" << step_r2_tmp << endl;
+            print_1dvector(step1_tmp);
+            print_1dvector(step2_tmp);
+            print_1dvector(dQ_tmp); 
+            return;
+        }
         // cout << step_r2_tmp << endl;
         slope_pref = LJ_slope_prefactor(step_r2_tmp, epsilon_ArAr, sigma_ArAr);
-
+        if (slope_pref > 10)
+        {
+            cout << "slope pref" << slope_pref << endl;
+            return;
+        }
+            
         Fprime_step[record.label1][0] -= slope_pref * dQ_tmp[0];
         Fprime_step[record.label1][1] -= slope_pref * dQ_tmp[1];
         Fprime_step[record.label1][2] -= slope_pref * dQ_tmp[2];
@@ -167,14 +192,13 @@ void SD_LJ(vector <vector <double> > &xyz, vector <vector <double> > lat_vec, do
         h[1] = -Fprime[n][1];
         h[2] = -Fprime[n][2];
         alpha = secant_method(Fprime[n], h, Fprime_step[n], rate, grad_tol);
-        // cout << alpha << endl;
         xyz[n][0] += alpha * -Fprime[n][0];
         xyz[n][1] += alpha * -Fprime[n][1];
         xyz[n][2] += alpha * -Fprime[n][2];
     }
 }
 
-void CG_ColumbBuckingham(vector <vector <double> > &xyz, vector <vector <double> > lat_vec, vector <vector <double> > &h, int iter, double rate=0.1, double grad_tol=1e-5, double nn_cutoff=numeric_limits<int>::max()) {
+void CG_ColumbBuckingham(vector <vector <double> > &xyz, vector <vector <double> > lat_vec, vector <vector <double> > &h, int iter, double rate=0.1, double grad_tol=1e-10, double nn_cutoff=numeric_limits<int>::max()) {
     int length = xyz.size();
     vector <vector <double> > Fprime(length, vector<double>(3, 0));
     vector <neighbour_record> nlist = neighbour_list(lat_vec, xyz, nn_cutoff);
@@ -251,9 +275,9 @@ int main() {
     int dim = 2;
     int n_cells = dim;
     double en, en_tmp, diff;
-    double en_tol = 1e-4;
+    double en_tol = 1e-9;
     int n_iter = 20000;
-    Ar_cell_xyz = get_fcc(n_cells, n_cells, n_cells, a_ArAr);
+    Ar_cell_xyz = get_simplecubic(n_cells, n_cells, n_cells, a_ArAr);
     Ar_cell_vec = {{n_cells * a_ArAr, 0, 0}, {0, n_cells * a_ArAr, 0}, {0, 0, n_cells * a_ArAr}};
     Ar_cell_xyz = add_perturbation(Ar_cell_xyz, 0.01);
 
@@ -263,13 +287,13 @@ int main() {
     double nn_cutoff = numeric_limits<int>::max();
 
     en_tmp = total_LJ(neighbour_list(Ar_cell_vec, Ar_cell_xyz, nn_cutoff), epsilon_ArAr, sigma_ArAr);
-    cout << "Initial energy " << en_tmp << endl;
+    cout << "LJ Potential: Initial energy " << en_tmp << endl;
     for (int i = 0; i < n_iter; i++)
     {
-        SD_LJ(Ar_cell_xyz, Ar_cell_vec, 0.001, 1e-5, nn_cutoff);
-        if ((i+1) % 500 == 0) {
+        SD_LJ(Ar_cell_xyz, Ar_cell_vec, 0.001, 1e-10, nn_cutoff);
+        if ((i+1) % 1 == 0) {
             en = total_LJ(neighbour_list(Ar_cell_vec, Ar_cell_xyz, nn_cutoff), epsilon_ArAr, sigma_ArAr);
-            print_2dvector(Ar_cell_xyz);
+            // print_2dvector(Ar_cell_xyz);
             diff = en - en_tmp;
             cout << "Step " << i+1 << "; energy: " << en << "; abs difference: " << fabs(diff) << "; convergence tol: " << en_tol << endl;
             if (fabs(diff) < en_tol) {
@@ -303,7 +327,7 @@ int main() {
     }
 
     en_tmp = total_CoulombBuckingham(neighbour_list(MgO_cell_vec, MgO_cell_xyz, nn_cutoff), Mg_length);
-    cout << "Initial energy " << en_tmp << endl;
+    cout << "CoulombBuckingham: Initial energy " << en_tmp << endl;
     for (int i = 0; i < n_iter; i++)
     {
         CG_ColumbBuckingham(MgO_cell_xyz, MgO_cell_vec, h, i, 0.1, 1e-5, nn_cutoff);

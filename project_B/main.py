@@ -4,11 +4,11 @@ import pandas as pd
 
 def stocks_norm_return(pool, start_date, end_date, dropna=True):
     data = yf.download(" ".join(pool), start=start_date, end=end_date)
-    adj_close = data['Adj Close']
     if dropna:
-        return (adj_close / adj_close.iloc[0]).dropna(axis=1)
+        adj_close = data['Adj Close'].dropna()
     else:
-        return adj_close / adj_close.iloc[0]
+        adj_close = data['Adj Close'].fillna(method='bfill')
+    return (adj_close / adj_close.iloc[0])
 
 def init_stock_choice(pool, k='rand', k_low=2, k_up=50):
     if k == 'rand': 
@@ -32,7 +32,7 @@ def build_portfolio(norm_return, capital, stocks, weights):
     portfolio['DailyPercentageReturn'] = portfolio['TotalPos'].pct_change(1)
     return portfolio
 
-def sharpe(ret, vol, kval=1, risk_free_ret=0.04):
+def sharpe(ret, vol, kval=1, risk_free_ret=0):
     return (ret - risk_free_ret) * kval / vol
 
 class MC_portfolio():

@@ -1,0 +1,14 @@
+All codes in included in lab4.ipynb. Please use google colab to open it if necessary.
+
+The sessions in the notebook gives descriptions of all modular functions for different purpose.
+
+There are xyz files for initial perturbed cell and final relaxed cell
+
+Energy plot at each step is in the notebook.
+
+1. LJ-potential and Gradient Descent for relaxing perturbed Argon Argon cell (FCC)
+2. Coulomb Buckingham Potential and Conjugate Gradient Descent for relaxing perturbed MgO cell (FCC)
+
+Part 1 works most of the time, the gradient and slopes are well-behaved and energy converges
+
+Part 2 does not work at all, the initial gradient for some atoms are very large already. The energy blows up after few steps. I will try fix it if I can do corrections afterwards.
